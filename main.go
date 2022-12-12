@@ -1,28 +1,17 @@
 package main
 
-import (
-	"github.com/fasthttp/router"
-	"github.com/valyala/fasthttp"
-	"time"
-)
+import "github.com/gofiber/fiber/v2"
 
 func main() {
-	connect()
+	ConnectToDB()
 
-	r := router.New()
+	app := fiber.New()
 
-	r.GET("/verify/{username}", Verify)
-	r.POST("/signup/{username}", SignUp)
-	r.POST("/reset/{username}", Reset)
+	app.Get("/verify/:username", Verify)
+	app.Post("/signup/:username", SignUp)
+	app.Post("/reset/:username", Reset)
 
-	server := &fasthttp.Server{
-		Handler:           r.Handler,
-		Name:              "authentication-service",
-		ReadTimeout:       60 * time.Second,
-		ReduceMemoryUsage: true,
-	}
-
-	err := server.ListenAndServe("127.0.0.1:8080")
+	err := app.Listen(":8080")
 
 	if err != nil {
 		panic(err)

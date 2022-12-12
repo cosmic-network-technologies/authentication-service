@@ -8,7 +8,7 @@ import (
 
 var DataBase *sql.DB
 
-func connect() {
+func ConnectToDB() {
 	d, err := sql.Open("mysql", "root:local@/authentication")
 
 	if err != nil {
@@ -32,10 +32,14 @@ func GetHash(username *string) []byte {
 	return passwordHash
 }
 
-func Insert(username *string, passwordHash *[]byte) {
-	_, _ = DataBase.Exec("INSERT INTO authentication_data(username, password_hash) VALUES(?, ?)", *username, *passwordHash)
+func Insert(username *string, passwordHash *[]byte) error {
+	_, err := DataBase.Exec("INSERT INTO authentication_data(username, password_hash) VALUES(?, ?)", *username, *passwordHash)
+
+	return err
 }
 
-func Update(username *string, passwordHash *[]byte) {
-	_, _ = DataBase.Exec("UPDATE authentication_data SET password_hash=? WHERE username=?", *passwordHash, *username)
+func Update(username *string, passwordHash *[]byte) error {
+	_, err := DataBase.Exec("UPDATE authentication_data SET password_hash=? WHERE username=?", *passwordHash, *username)
+
+	return err
 }

@@ -1,37 +1,37 @@
 package main
 
 import (
-	"github.com/valyala/fasthttp"
+	"github.com/gofiber/fiber/v2"
 )
 
-func ParseRequest(ctx *fasthttp.RequestCtx) (string, string) {
-	return ctx.UserValue("username").(string), string(ctx.QueryArgs().Peek("password"))
+func ParseRequest(ctx *fiber.Ctx) (string, string) {
+	return ctx.Params("username"), ctx.Query("password")
 }
 
-func Verify(ctx *fasthttp.RequestCtx) {
+func Verify(ctx *fiber.Ctx) error {
 	username, password := ParseRequest(ctx)
 	hash := GetHash(&username)
 
 	if hash == nil {
-		ctx.SetStatusCode(fasthttp.StatusNotFound)
+		return ctx.SendStatus(fiber.StatusNotFound)
 	} else if VerifyPassword(&hash, &password) {
-		ctx.SetStatusCode(fasthttp.StatusOK)
+		return ctx.SendStatus(fiber.StatusOK)
 	} else {
-		ctx.SetStatusCode(fasthttp.StatusUnauthorized)
+		return ctx.SendStatus(fiber.StatusUnauthorized)
 	}
 }
 
-func SignUp(ctx *fasthttp.RequestCtx) {
+func SignUp(ctx *fiber.Ctx) error {
 	username, password := ParseRequest(ctx)
 
 	passwordHash := HashPassword(&password)
 
-	Insert(&username, &passwordHash)
+	return Insert(&username, &passwordHash)
 }
 
-func Reset(ctx *fasthttp.RequestCtx) {
+func Reset(ctx *fiber.Ctx) error {
 	username, password := ParseRequest(ctx)
 	passwordHash := HashPassword(&password)
 
-	Update(&username, &passwordHash)
+	return Update(&username, &passwordHash)
 }
